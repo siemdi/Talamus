@@ -734,7 +734,7 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
 ///
 ////////////////////////////////////////////////////////////
     m_time4 = GetTickCount();
-    for (y = 0; y <= h; y=y)
+    for (y = 0; y <= h-3; ++y)
     {
             // ��������� ��� ������ � �����������
             ptr = (uchar*)(Green->imageData + y * Green->widthStep); // ��������� �� ������ ������ 'y'
@@ -743,7 +743,7 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
             //������ ������������������ �����������
             ptrG = (uchar*)(KontrastCaps->imageData + (y+1) * KontrastCaps->widthStep);
             //ptrG = (uchar*)(KontrastCaps->imageData + y * KontrastCaps->widthStep);
-        for (x = 0; x <= w; x=x)
+        for (x = 0; x <= w-3; ++x)
         {
             sgeom = 1;
             //B component
