@@ -734,6 +734,9 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
 ///
 ////////////////////////////////////////////////////////////
     m_time4 = GetTickCount();
+    double composition1=0;
+    double composition2=0;
+    double composition3=0;
     for (y = 0; y <= h-3; ++y)
     {
             // ��������� ��� ������ � �����������
@@ -765,9 +768,22 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
             //sgeom = sgeom * (double)(256 - ptr1[3 * x + 1]) * (double)(256 - ptr1[3 * (x + 1) + 1]) * (double)(256 - ptr1[3 * (x + 2)] + 1);
             //sgeom = sgeom * (double)(256 - +ptr2[3 * x] + 1) * (double)(256 - ptr2[3 * (x + 1) + 1]) * (double)(256 - ptr2[3 * (x + 2) + 1]);
             //
-            sgeom = (256. - ptr[x]) *(256. - ptr[x + 1]) * (256. - ptr[x + 2]);
-            sgeom = sgeom * (256. - ptr1[x]) * (256. - ptr1[x + 1]) * (256. - ptr1[x + 2]);
-            sgeom = sgeom * (256. - ptr2[x]) * (256. - ptr2[x + 1]) * (256. - ptr2[x + 2]);
+//            composition1 = (256. - ptr[x]) *(256. - ptr[x + 1]) * (256. - ptr[x + 2]);
+//            composition2 = (256. - ptr1[x]) * (256. - ptr1[x + 1]) * (256. - ptr1[x + 2]);
+//            composition3 = (256. - ptr2[x]) * (256. - ptr2[x + 1]) * (256. - ptr2[x + 2]);
+            if(x==0)
+            {
+                composition3 = (256. - ptr[x+2])*(256. - ptr1[x+2])*(256. - ptr2[x+2]);
+                composition2 = (256. - ptr[x+1])*(256. - ptr1[x+1])*(256. - ptr2[x+1]);
+                composition1 = (256. - ptr[x])*(256. - ptr1[x])*(256. - ptr2[x]);
+            }
+            else
+            {
+                composition1 = composition2;
+                composition2 = composition3;
+                composition3 = (256. - ptr[x+2])*(256. - ptr1[x+2])*(256. - ptr2[x+2]);
+            }
+            sgeom = composition1 * composition2 * composition3;
 
 //            sgeom = (double)(256 - ptr[x]) *(double)(256 - ptr[x + 1]) * (double)(256 - ptr[x + 2]);
 //            sgeom = sgeom * (double)(256 - ptr1[x]) * (double)(256 - ptr1[x + 1]) * (double)(256 - ptr1[x + 2]);
