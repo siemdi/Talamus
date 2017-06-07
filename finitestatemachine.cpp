@@ -185,7 +185,7 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
     //image = cvCreateImage(cvSize(image1->width / 2, image1->height / 2), image1->depth, image1->nChannels);
     //cvResize(image1, image, 3);
     image = cvCreateImage(cvSize(imageF->width / 2, imageF->height / 2), imageF->depth, imageF->nChannels);
-    cvResize(imageF, image, 3);
+    cvResize(imageF, image, 2);
 
     if((CSettings::mSimilar == true)&&(m_counter==CSettings::mEach))
     {
@@ -688,6 +688,15 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
     int h, w, x, y, Kontrast;
     h = colCaps->height;
     w = colCaps->width;
+    //
+    double dlog;
+    double** imgIntegral = new double*[h+1];
+        for (x = 0; x < h+1; ++x)
+        {
+            imgIntegral[x] = new double[w+1];
+        }
+
+    //
     uchar *ptr, *ptr1, *ptr2, *ptrG;
     IplImage *Green;
     Green= cvCreateImage(cvSize(colCaps->width, colCaps->height), IPL_DEPTH_8U, 1);
@@ -701,6 +710,13 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
     ///
     ////////////////////////////////////////////////////////////
     m_time4 = GetTickCount();
+    //
+    for (x=0;x<w+1;++x)
+        imgIntegral[0][x] = 0;
+
+    for (y=0;y<h+1;++y)
+        imgIntegral[y][0] = 0;
+
     for (y = 0; y < h; ++y)
     {
         ptr = (uchar*)(colCaps->imageData + y * colCaps->widthStep); // ��������� �� ������ ������ 'y'
@@ -710,18 +726,49 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
         {
         //	ptrG[x] = (int)(((255 - ptr[3 * x]) + (255 - ptr[3 * x + 1]))/2);
         //	sgeomGl = sgeomGl + log((double)(256 - ptr[3 * x+1]));
+            float k=log(100);
             ptr1[x] = ptr[3 * x + 1];
-            sgeomGl = sgeomGl + log((double)(1+ptr[3 * x + 1]));
+            dlog = log((double)(1+ptr[3 * x + 1]));
+            sgeomGl = sgeomGl + dlog;
+            imgIntegral[y+1][x+1] = dlog;
             if (ptr[3 * x + 1] != 0) ngl = ngl + 1;
         }
     }
+
+
+    //int h = 3, w = 4;
+
+
+//    double imgIntegral[4][5] = {{0,0,0,0,0}
+//                               ,{0,1,1,1,1}
+//                               ,{0,1,1,1,1}
+//                               ,{0,1,1,1,1}};
+
+//    for (x = 1; x < w+1; ++x)
+//        for (y = 1; y < h+1; ++h)
+//        {
+//            imgIntegral[y][x] = 1.0;
+//        }
+
+
+    for (int x = 2; x <= w; ++x)
+            imgIntegral[1][x] = imgIntegral[1][x] + imgIntegral[1][x-1];
+
+    for (int y = 2; y <= h; ++y)
+        imgIntegral[y][1] = imgIntegral[y][1] + imgIntegral[y-1][1];
+
+    for (int y = 2; y <= h; ++y)
+        for (int x = 2; x <= w; ++x)
+            imgIntegral[y][x] = imgIntegral[y][x] + imgIntegral[y][x-1] + imgIntegral[y-1][x] - imgIntegral[y-1][x-1];
+
 
     m_elapsed4 = GetTickCount()-m_time4;
     std::cout<< "==== >Kontrast 1 cycle TIME: "<< m_elapsed4 << std::endl;
 ////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////
-    //double ppprom = sgeomGl / ngl;
+
+   // double ppprom = sgeomGl / ngl;
     sgeomGl = exp(sgeomGl / ngl);
     sgeomGl = 256 - sgeomGl;
     //���������������� ��������� �������
@@ -734,21 +781,23 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
 ///
 ////////////////////////////////////////////////////////////
     m_time4 = GetTickCount();
-    double composition1=0;
-    double composition2=0;
-    double composition3=0;
-    for (y = 0; y <= h-3; ++y)
+//    double composition1=0;
+//    double composition2=0;
+//    double composition3=0;
+//
+    int xintegral, yintegral;
+    for (int y = 1; y < h-1; ++y)
     {
             // ��������� ��� ������ � �����������
             ptr = (uchar*)(Green->imageData + y * Green->widthStep); // ��������� �� ������ ������ 'y'
-            ptr1= (uchar*)(Green->imageData + (y+1) * Green->widthStep);
-            ptr2= (uchar*)(Green->imageData + (y+2) * Green->widthStep);
+            //ptr1= (uchar*)(Green->imageData + (y+1) * Green->widthStep);
+           // ptr2= (uchar*)(Green->imageData + (y+2) * Green->widthStep);
             //������ ������������������ �����������
-            ptrG = (uchar*)(KontrastCaps->imageData + (y+1) * KontrastCaps->widthStep);
-            //ptrG = (uchar*)(KontrastCaps->imageData + y * KontrastCaps->widthStep);
-        for (x = 0; x <= w-3; ++x)
+            //ptrG = (uchar*)(KontrastCaps->imageData + (y+1) * KontrastCaps->widthStep);
+            ptrG = (uchar*)(KontrastCaps->imageData + y * KontrastCaps->widthStep);
+        for (int x = 1; x < w-1; ++x)
         {
-            sgeom = 1;
+            //sgeom = 1;
             //B component
             //sgeom = log((double)(256 - ptr[3 * x])) + log((double)(256 - ptr[3 * (x + 1)])) + log((double)(256 - ptr[3 * (x+2)]));
             //sgeom = sgeom + log((double)(256 - ptr1[3 * x])) + log((double)(256 - ptr1[3 * (x + 1)])) + log((double)(256 - ptr1[3 * (x + 2)]));
@@ -771,41 +820,49 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
 //            composition1 = (256. - ptr[x]) *(256. - ptr[x + 1]) * (256. - ptr[x + 2]);
 //            composition2 = (256. - ptr1[x]) * (256. - ptr1[x + 1]) * (256. - ptr1[x + 2]);
 //            composition3 = (256. - ptr2[x]) * (256. - ptr2[x + 1]) * (256. - ptr2[x + 2]);
-            if(x==0)
-            {
-                composition3 = (256. - ptr[x+2])*(256. - ptr1[x+2])*(256. - ptr2[x+2]);
-                composition2 = (256. - ptr[x+1])*(256. - ptr1[x+1])*(256. - ptr2[x+1]);
-                composition1 = (256. - ptr[x])*(256. - ptr1[x])*(256. - ptr2[x]);
-            }
-            else
-            {
-                composition1 = composition2;
-                composition2 = composition3;
-                composition3 = (256. - ptr[x+2])*(256. - ptr1[x+2])*(256. - ptr2[x+2]);
-            }
-            sgeom = composition1 * composition2 * composition3;
+//            if(x==0)
+//            {
+//                composition3 = (256. - ptr[x+2])*(256. - ptr1[x+2])*(256. - ptr2[x+2]);
+//                composition2 = (256. - ptr[x+1])*(256. - ptr1[x+1])*(256. - ptr2[x+1]);
+//                composition1 = (256. - ptr[x])*(256. - ptr1[x])*(256. - ptr2[x]);
+//            }
+//            else
+//            {
+//                composition1 = composition2;
+//                composition2 = composition3;
+//                composition3 = (256. - ptr[x+2])*(256. - ptr1[x+2])*(256. - ptr2[x+2]);
+//            }
+//            sgeom = composition1 * composition2 * composition3;
 
 //            sgeom = (double)(256 - ptr[x]) *(double)(256 - ptr[x + 1]) * (double)(256 - ptr[x + 2]);
 //            sgeom = sgeom * (double)(256 - ptr1[x]) * (double)(256 - ptr1[x + 1]) * (double)(256 - ptr1[x + 2]);
 //            sgeom = sgeom * (double)(256 - +ptr2[x]) * (double)(256 - ptr2[x + 1]) * (double)(256 - ptr2[x + 2]);
             //
-            sgeom = log(sgeom)/Nm;
+            xintegral = x + 1;
+            yintegral = y + 1;
+            sgeom = (imgIntegral[yintegral+1][xintegral+1] + imgIntegral[yintegral-2][xintegral-2] - imgIntegral[yintegral-2][xintegral+1] - imgIntegral[yintegral+1][xintegral-2])/9.;
+//            sgeom = log(sgeom)/Nm;
             sgeom = exp(sgeom);
-            //
-            Br = (256 - ptr[x + 1]) / 256.0;
-            //sgeom = sgeomGl / sgeom;
+//            //
+            Br = (256 - ptr[x]) / 256.0;
+//            //sgeom = sgeomGl / sgeom;
             //Br = exp(log(Br)*sgeomGl / sgeom);
 
-            //Br = exp(log(Br)* kkk*sgeom/sgeomGl);
-            Br = exp(log(Br)*kkk*sgeomGl / sgeom);
+            Br = exp(log(Br)* kkk*sgeom/sgeomGl);
+            //Br = exp(log(Br)*kkk*sgeomGl / sgeom);
             Br = 256 *Br - 1;
             Kontrast = 255-(int)(Br + 0.5);
             if (Kontrast >255)  Kontrast = 255;
             if (Kontrast < 0)  Kontrast = 0;
-            ptrG[x+1] = Kontrast;
-            //ptrG[x] = ptr[3 * x];
+            ptrG[x] = Kontrast;
+//            //ptrG[x] = ptr[3 * x];
         }
     }
+    //
+    for (int x = 0; x < h+1; ++x)
+           delete[]imgIntegral[x];
+       delete[]imgIntegral;
+    //
     m_elapsed4 = GetTickCount()-m_time4;
     std::cout<< "==== >Kontrast 2 cycle TIME: "<< m_elapsed4 << std::endl;
 
