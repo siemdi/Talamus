@@ -5,6 +5,7 @@
 #include "settings.h"
 #include "finitestatemachine.h"
 #include <QThread>
+#include <iostream>
 
 namespace Ui {
 class MainWindow;
@@ -23,6 +24,11 @@ private:
     Ui::MainWindow *ui;
     CSettings oSettings;
     CFiniteStateMachine *fsm;
+
+public slots:
+    void MVCGPIO1(bool);
+    void MVCGPIO2(bool);
+    void MVCGPIO3(bool);
 
 //public slots:
 //    void    slot_ReceiveImage(IplImage);

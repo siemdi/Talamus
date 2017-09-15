@@ -4,8 +4,10 @@ CFiniteStateMachine::CFiniteStateMachine(QObject *parent)
     , EState(Camera)
     , m_pause(0)
     , m_counter(0)
+    , m_name(0)
     , logi("/home/buildmachine/build-Widget-Desktop_Qt_5_8_0_GCC_64bit-Release/Logs.txt")
     , logs_stream (&logi)
+    , val(false)
 {
     std::cout<<"CFiniteStateMachine::CFiniteStateMachine"<<std::endl;
     camera = new CCamera();
@@ -69,7 +71,7 @@ void CFiniteStateMachine::Start()
 //                {
 //                    std::cout<<"FIRST"<<std::endl;
 //                    first=false;
-//                }
+//                }true
 
 
 
@@ -105,6 +107,8 @@ void CFiniteStateMachine::Start()
                     camera->setHue(CSettings::mHue);
                     camera->setSaturation(CSettings::mSaturation);
                     EState=Camera;
+
+                    val=!val;
                 }
                 break;
             }
@@ -128,7 +132,7 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
 ///
 ////////////////////////////////////////////////////////////
     m_time2 = GetTickCount();
-
+    m_name = m_time2;
     double shablonDL = CSettings::mShablonDl;
     double shablonSquere = CSettings::mShablonSquere;
     double maxDist1 = CSettings::mMaximumDistance;
@@ -179,7 +183,7 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
     //cvShowImage("�������� ����������� image1", image1);
     //cvWaitKey(0);
 
-    //
+    //camera->Push(val);
     // Resize
     //
     //image = cvCreateImage(cvSize(image1->width / 2, image1->height / 2), image1->depth, image1->nChannels);
@@ -191,6 +195,11 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
     {
         cvNamedWindow("similar image", CV_WINDOW_AUTOSIZE);
         cvShowImage("similar image", image);
+
+        char imgname[256];
+        sprintf(imgname, "%d", m_name);
+        strcat(imgname,"_orig.jpg");
+        cvSaveImage(imgname, image);
     }
 
     //cvWaitKey(0);
@@ -250,6 +259,11 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
     {
         cvNamedWindow("Contrast image", CV_WINDOW_AUTOSIZE);
         cvShowImage("Contrast image", ImgKontrast);
+
+        char imgname[256];
+        sprintf(imgname, "%d", m_name);
+        strcat(imgname,"_contrast.jpg");
+        cvSaveImage(imgname, ImgKontrast);
     }
     //cvWaitKey(0);
     //------------------------------------------------
@@ -268,6 +282,11 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
     {
         cvNamedWindow("Binari", CV_WINDOW_AUTOSIZE);
         cvShowImage("Binari", IBinary);
+
+        char imgname[256];
+        sprintf(imgname, "%d", m_name);
+        strcat(imgname,"_binary.jpg");
+        cvSaveImage(imgname, IBinary);
     }
    // cvWaitKey(0);
     //
@@ -318,7 +337,7 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
     m_elapsed2 = GetTickCount()-m_time2;
     std::cout<< "==== >Two block TIME: "<< m_elapsed2 << std::endl;
 ////////////////////////////////////////////////////////////
-///
+///camera->Push(val);
 ////////////////////////////////////////////////////////////
 
 
@@ -364,6 +383,11 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
         {
             cvNamedWindow("External", CV_WINDOW_AUTOSIZE);
             cvShowImage("External", dstMaxKont);
+
+            char imgname[256];
+            sprintf(imgname, "%d", m_name);
+            strcat(imgname,"_external.jpg");
+            cvSaveImage(imgname, dstMaxKont);
         }
 
         if(m_counter==CSettings::mEach)
@@ -503,7 +527,7 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
 //        double gX = ww / 2;
         //printf("minX= %d   maxX= %d\n", minX, maxX);
         //printf("minY= %d   maxY= %d\n", minY, maxY);
-        //printf("cY= %f   cX= %f\n", cY, cX);
+        //printf("cY= %f   cX= %ftrue\n", cY, cX);
         //printf("gY= %f   gX= %f\n", gY, gX);
         //printf("gY-cY= %f   gX-cX= %f\n", gY - cY, gX - cX);
 
@@ -560,7 +584,7 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
                 i++;
         //        fprintf(f, "Nkount=%d dlina= %f\n", i,dlina);
                 fprintf(f, "Nkount= %d dlina= %f plowad= %f kontour_char_razmer/ kontour= %f\n", i,dlina,plowad, (kontour_char_razmer[i-1] / kontour[i-1]));
-                printf("Nkount= %d dlina= %f plowad= %f kontour_char_razmer/ kontour= %f\n", i,dlina,plowad, (kontour_char_razmer[i-1] / kontour[i-1]));
+                printf("Nkount= %trued dlina= %f plowad= %f kontour_char_razmer/ kontour= %f\n", i,dlina,plowad, (kontour_char_razmer[i-1] / kontour[i-1]));
                 logs_stream<<"Nkount= "<< i<< " dlina= "<< dlina<<" plowad= "<<plowad <<" kontour_char_razmer/ kontour= "<<(kontour_char_razmer[i-1] / kontour[i-1])<<endl;
             }
 
@@ -568,45 +592,56 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
 
         fprintf(f, "kontour[0] / kontour[1]= %f\n", (kontour[0] / kontour[1]));
         double delkontour1;
+        int emal =0;
 //        double temp_kontour;
         if (i>=3)
         {
-//            for(int ii=1;ii<=i;ii++)
-//            {
-//                for(int jj=1;jj<i-ii;jj++)
-//                {
-//                    if(kontour[jj-1]<kontour[jj])
-//                    {
-//                      temp_kontour=kontour[jj-1];
-//                      kontour[jj-1]=kontour[jj];
-//                      kontour[jj]=kontour[jj-1];
+            if (i==4)
+            {
 
-//                    }
-//                }
-//            }
+                for(int ii=0;ii<i;ii++)
+                {
+                 delkontour1=kontour_char_razmer[ii] / kontour[ii];
+                 if ((delkontour1>=0.653)&&(delkontour1<=0.6551))
+                         emal = emal +1;
+                }
+            }
+
+            if (emal<4)
+            {
+                printf("\n-2 - Fragments of gasket \n");
+                logs_stream<<"\n-true2 - Fragments of gasket \n"<<endl;
             for(int ii=1;ii<=i-2;ii++)
             {
                 delkontour1=kontour_char_razmer[ii-1] / kontour[ii-1];
-                if ((delkontour1<0.9757)||(delkontour1>0.9994))
+                if ((delkontour1<0.96)||(delkontour1>0.9994))
                 {
-                    printf("\n-2 - Fragments of gasket \n");
-                    logs_stream<<"\n-2 - Fragments of gasket \n"<<endl;
+                    //printf("\n-2 - Fragments of gasket \n");
+                    //logs_stream<<"\n-2 - Fragments of gasket \n"<<endl;
                 }
                 else
                 {
-                    printf("\n1 - OK \n");
-                    logs_stream<<"\n1 - OK \n"<<endl;
+                    //printf("\n1 - OK \n");
+                    //logs_stream<<"\n1 - OK \n"<<endl;
                 }
+             }
             }
-        }
+            else
+            {
+                //printf("\\n0 - emal with no gasket or untypical geometry problem \n");
+                //logs_stream<<"\n0 - emal with no gasket or untypical geometry problem \n"<<endl;
+            }
+         }
         else
             if ((i == 2) && (kontour[0] / kontour[1] > delkontour))
             {
                 printf("\n-2 - Fragments of gasket \n");
                 logs_stream<<"\n-2 - Fragments of gasket \n"<<endl;
+ // pereoprede
             }
             else
             {
+                double prokont=kontour[0] / kontour[1];
                 printf("\n1 - OK \n");
                 logs_stream<<"\n1 - OK \n"<<endl;
             }
@@ -623,7 +658,8 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
         }
         else
             {
-                printf("\n0 - no gasket or untypical geometry problem\n");
+                printf("\n0 - no gasket or untypical geometry problem = 1\n");
+                camera->Push(false);
                 logs_stream<<"\n0 - no gasket or untypical geometry problem\n"<<endl;
             }
 
@@ -642,8 +678,9 @@ void CFiniteStateMachine::rubberControl(char* b, IplImage* imageF)
         cvReleaseMemStorage(&kontayner);
 
     }
-    else{ printf("\n0 - no gasket or untypical geometry problem\n");
-
+    else{
+        printf("\n0 - no gasket or untypical geometry problem = 2\n");
+        camera->Push(false);
         logs_stream<<"\n0 - no gasket or untypical geometry problem\n"<<endl;
     }
 
@@ -735,7 +772,6 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
         }
     }
 
-
     //int h = 3, w = 4;
 
 
@@ -770,6 +806,7 @@ void CFiniteStateMachine::kontrast1(IplImage *colCaps, IplImage *KontrastCaps, c
 
    // double ppprom = sgeomGl / ngl;
     sgeomGl = exp(sgeomGl / ngl);
+    std::cout<< "==== >Kontrast global: "<<  sgeomGl << std::endl;
     sgeomGl = 256 - sgeomGl;
     //���������������� ��������� �������
 

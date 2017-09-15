@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::MVCGPIO1(bool val)
 {
     std::cout<<"MainWindow::MVCGPIO1: val = " << val <<std::endl;
+    
 }
 
 void MainWindow::MVCGPIO2(bool val)

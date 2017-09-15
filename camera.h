@@ -19,7 +19,7 @@ public:
     void setWhiteBalance(int red, int blue);
     void setHue(int value);
     void setSaturation(int value);
-
+    void Push(bool value);
 private:
     IplImage* ConvertImageToOpenCV(FlyCapture2::Image* pImage);
 

@@ -43,16 +43,99 @@ CCamera::CCamera()
     image = cvCreateImage(CvSize(1024,1280), IPL_DEPTH_8U, 3 );
 
     FlyCapture2::TriggerMode mTrigger;
-    mTrigger.polarity = 1;
+    mTrigger.source = 0;
+    mTrigger.polarity = 0;
     mTrigger.onOff = true;
     cam.SetTriggerMode(&mTrigger);
+
+
+
+
+    DEBUG("CCamera::CCamera() ====== 2");
+
+    FlyCapture2::StrobeControl mStrobe;
+    mStrobe.source = 2;
+    mStrobe.onOff = true;
+    mStrobe.polarity = 0;
+    mStrobe.delay = 10.0f;
+    mStrobe.duration = 10.5f;
+    cam.SetStrobe(&mStrobe);
+}
+
+void CCamera::Push(bool value)
+{
+    CRITICAL("CCamera::Push 11");
+
+    FlyCapture2::StrobeControl mStrobe;
+    mStrobe.source = 2;
+    mStrobe.onOff = true;
+    mStrobe.polarity = 1;
+    mStrobe.delay = 1.0f;
+    mStrobe.duration = 1.5f;
+    cam.SetStrobe(&mStrobe);
+
+    mStrobe.onOff = false;
+    mStrobe.polarity = 0;
+    cam.SetStrobe(&mStrobe);
+
+
+
+//        FlyCapture2::StrobeControl mStrobe;
+//        mStrobe.source = 2;
+//        //mStrobe.parameter = 0;
+//        mStrobe.onOff = true;10
+
+//        //mStrobe.polarity = 1;
+//        mStrobe.delay = 10.0f;
+//        mStrobe.duration = 10.5f;
+//        cam.SetStrobe(&mStrobe);
+
+
+//        mStrobe.onOff = false;
+//        cam.SetStrobe(&mStrobe);
+
+
+
+    //    FlyCapture2::TriggerMode mTrigger2;
+//    mTrigger2.source = 2;
+//    mTrigger2.onOff = false;
+//    mTrigger2.polarity = 1;
+//    cam.SetTriggerMode(&mTrigger2);
+
+//    mTrigger2.onOff = true;
+//    cam.SetTriggerMode(&mTrigger2);
+
+//    FlyCapture2::TriggerMode mTrigger;
+//    mTrigger.mode = 0;
+//    mTrigger.source = 2;
+//    mTrigger.parameter = 0;
+//    mTrigger.onOff = false;
+//    mTrigger.polarity = 1;
+//    cam.SetTriggerMode(&mTrigger);
+
+//    FlyCapture2::StrobeControl mStrobe;
+//    mStrobe.source = 2;
+////    mStrobe,parameter = 0;
+//    mStrobe.onOff = value;
+//    //mStrobe.polarity = 1;
+//    //mStrobe.delay = 1.0f;
+//    //mStrobe.duration = 10.5f;
+//    cam.SetStrobe(&mStrobe);
+
+//    //mStrobe.source = 2;
+////    mStrobe,parameter = 0;
+//    mStrobe.onOff = true;
+//    //mStrobe.polarity = 1;
+//    //mStrobe.delay = 1.0f;
+//    //mStrobe.duration = 10.5f;
+//    cam.SetStrobe(&mStrobe);
 
 }
 
 IplImage CCamera::GetImageFromCam()
 {
-//    DEBUG("CCamera::GetImageFromCam()");
-
+    DEBUG("CCamera::GetImageFromCam()");
+//    unsigned int value;
 //    cam.ReadRegister( 0x11f8, &value);
 //    std::cout<<std::hex<<"IO direction:"<<value<<std::endl;
 
@@ -66,7 +149,7 @@ IplImage CCamera::GetImageFromCam()
 //    std::cout<<"IO 2:"<<value<<std::endl;
 
 //    cam.ReadRegister( 0x1140, &value);
-//    std::cout<<"IO 3:"<<value<<std::endl;
+//    std::cout<mStrobe<"IO 3:"<<value<<std::endl;
 
 //    cam.ReadRegister( 0x1100, &value);
 
@@ -76,22 +159,21 @@ IplImage CCamera::GetImageFromCam()
 //        cam.WriteRegister( 0x1100, 1<<2);
 //        cam.WriteRegister( 0x1100, 1<<1);
 //        //cam.ReadRegister(0x1100, &value);
-//        cvWaitKey(10);
+//        //cvWaitKey(100);
 //        cam.WriteRegister( 0x1100, value&~(1<<1));
 //        cam.WriteRegister( 0x1100, value&~(1<<2));
 //        cam.WriteRegister( 0x1100, value&~(1<<3));
 //        //cam.ReadRegister(0x1100, &value);
-//        cvWaitKey(10);
+//        //cvWaitKey(100);
 //    }
-
-//    std::cin>>a;
+//    //cvWaitKey(100);
 //    std::cout<<"pin reg new status="<<value<<std::endl;
-//    cam.WriteRegister( 0x1100, 1<<3);
+//    cam.WriteRegister( 0x1100, 1<<3);value
 //    cam.ReadRegister(0x1100, &value);
-//    std::cin>>a;
+//    //cvWaitKey(100);
 //    std::cout<<"pin reg new status="<<value<<std::endl;
 //    cam.WriteRegister( 0x1100, 0x0);
-
+//mStrobe
 
 
 //    cam.ReadRegister( 0x1100, &value);
@@ -223,7 +305,7 @@ void CCamera::setSharpness(double value)
 
 void CCamera::setGamma(double value)
 {
-    //std::cout<<"setGamma value: "<<value<<std::endl;
+    //std::cout<<"setGamma value: "<<value<<std::)endl;
     //std::cout<<"setGamma mGamma: "<<mlGamma<<std::endl;
     if(value != mlGamma)
     {

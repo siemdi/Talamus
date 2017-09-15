@@ -162,7 +162,7 @@ void CSettings::SetSaveImage(int value)
 ////////////////////////////////////
 /// \brief CSettings::mDlina
 ///
-double CSettings::mDelContour(1.42);
+double CSettings::mDelContour(1.09);
 void CSettings::SetDelContour(double value)
 {
     mDelContour = value;

@@ -38,6 +38,8 @@ private:
     unsigned int    m_time2;
     unsigned int    m_elapsed2;
 
+    unsigned int    m_name;
+
     unsigned int    m_time3;
     unsigned int    m_elapsed3;
 
@@ -46,6 +48,8 @@ private:
 
     char            str[11];
     int             m_counter;
+
+    bool val;
 
     QFile logi;//("/home/buildmachine/build-Widget-Desktop_Qt_5_8_0_GCC_64bit-Release/Logs.txt");
     //logi.open(QIODevice::ReadWrite);
